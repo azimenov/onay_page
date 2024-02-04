@@ -1,2 +1,54 @@
-package com.example.onay_page.controller;public class ContactController {
+package com.example.onay_page.controller;
+
+import com.example.onay_page.model.Contact;
+import com.example.onay_page.repository.ContactRepository;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+import jakarta.validation.Valid;
+
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
+
+@Slf4j
+@Controller
+@AllArgsConstructor
+public class ContactController {
+
+    private final ContactRepository contactRepository;
+
+
+
+    @RequestMapping("/contact")
+    public String displayContactPage(Model model) {
+        model.addAttribute("contact", new Contact());
+        return "contact.html";
+    }
+
+    /*@RequestMapping(value = "/saveMsg",method = POST)
+    public ModelAndView saveMessage(@RequestParam String name, @RequestParam String mobileNum,
+                                    @RequestParam String email, @RequestParam String subject, @RequestParam String message) {
+        log.info("Name : " + name);
+        log.info("Mobile Number : " + mobileNum);
+        log.info("Email Address : " + email);
+        log.info("Subject : " + subject);
+        log.info("Message : " + message);
+        return new ModelAndView("redirect:/contact");
+    }*/
+
+    @RequestMapping(value = "/saveMsg",method = POST)
+    public String saveMessage(@Valid @ModelAttribute("contact") Contact contact, Errors errors){
+
+        if(errors.hasErrors()){
+            log.error("Contact form validation failed due to : " + errors.toString());
+            return "contact.html";
+        }
+        contactRepository.save(contact);
+        return "redirect:/contact";
+    }
 }
